@@ -14,6 +14,9 @@ const getFavouritesBtn = document.getElementById("getFavouritesBtn");
 // Step 0: Store your API key here for reference and easy access.
 const API_KEY = "live_6xah9z83mjGHx7KfEXYSDvDdhl6mJSjiftvhcWo70JU9e2pYVokTQzlR03Gyuz1k";
 
+const pChilds = infoDump.children;
+
+
 /**
  * 1. Create an async function "initialLoad" that does the following:
  * - Retrieve a list of breeds from the cat API using fetch().
@@ -42,6 +45,9 @@ async function addOptions(dataObj) {
       //console.log(item.name);
       let optionsVal = `<option id = "${item.id}" value = "${item.id}">${item.name}</option>`;
       breedSelect.innerHTML += optionsVal;
+      let paragraph = `<p id = "${item.id}" value = "${item.id}" style = "display:none"> ${item.description} </p>`;
+      infoDump.innerHTML += paragraph;
+      //paragraph.classList.add('active');
       breedIdList.push(item.id);
     })
 
@@ -67,7 +73,9 @@ async function addOptions(dataObj) {
 
 getFavouritesBtn.addEventListener("click", async () => {
   Carousel.clear();
-
+  for (const child of pChilds) {
+    child.style.display = "none";
+  }
   let selectedBreedVal = breedSelect.value;
   console.log(`selectedBreedVal ${selectedBreedVal}`)
   //console.log(fetch(`https://api.thecatapi.com/v1/images/search?breed_ids=${selectedBreedVal}`));
@@ -75,11 +83,52 @@ getFavouritesBtn.addEventListener("click", async () => {
   data = await data.json();
 
   data.forEach((item) => {
-    console.log(`id`, item.id);
-    console.log(`url`, item.url);
     let ele = Carousel.createCarouselItem(item.url, "cat", item.id);
     Carousel.appendCarousel(ele);
   })
+
+  const pSelected = infoDump.querySelector(`#${selectedBreedVal}`);
+
+  if (selectedBreedVal) {
+    console.log("if");
+    // Check if pSelected actually exists before trying to access its style property
+    console.log("pSelected ", pSelected);
+    if (pSelected) {
+      pSelected.style.display = "block";
+    } else {
+      console.error(`Error: No element found for selector: ${selectedBreedVal}`);
+    }
+
+  } else {
+    console.log("else");
+    // Hide all children if selectedBreedVal is "falsy"
+    for (const child of pChilds) {
+      child.style.display = "none";
+    }
+  }
+
+  /*  if (selectedBreedVal) {
+   console.log("if");
+   // Hide all children first
+   for (const child of pChilds) {
+     child.style.visibility = "hidden";
+   }
+ 
+   // Check if pSelected actually exists before trying to access its style property
+   console.log("pSelected ", pSelected);
+   if (pSelected) {
+     pSelected.style.visibility = "visible";
+   } else {
+     console.error(`Error: No element found for selector: ${selectedBreedVal}`);
+   }
+ 
+ } else {
+   console.log("else");
+   // Hide all children if selectedBreedVal is "falsy"
+   for (const child of pChilds) {
+     child.style.visibility = "hidden";
+   }
+ } */
 
 });
 
@@ -95,7 +144,10 @@ getFavouritesBtn.addEventListener("click", async () => {
  *   by setting a default header with your API key so that you do not have to
  *   send it manually with all of your requests! You can also set a default base URL!
  */
+
+//function 
 /**
+ * 
  * 5. Add axios interceptors to log the time between request and response to the console.
  * - Hint: you already have access to code that does this!
  * - Add a console.log statement to indicate when requests begin.
