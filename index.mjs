@@ -14,8 +14,6 @@ const getFavouritesBtn = document.getElementById("getFavouritesBtn");
 // Step 0: Store your API key here for reference and easy access.
 const API_KEY = "live_6xah9z83mjGHx7KfEXYSDvDdhl6mJSjiftvhcWo70JU9e2pYVokTQzlR03Gyuz1k";
 
-let desc = [];
-
 /**
  * 1. Create an async function "initialLoad" that does the following:
  * - Retrieve a list of breeds from the cat API using fetch().
@@ -29,66 +27,29 @@ let desc = [];
 
   console.log("func started")
 
-  //console.log(fetch(`https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=beng&api_key=${API_KEY}`))
-  //let breedList = await fetch(`https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=beng&api_key=${API_KEY}`);
-
   let listOfBreedss = await fetch(`https://api.thecatapi.com/v1/breeds`)
-  let data = await listOfBreedss.json();
-  let dataRes = await JSON.stringify(data);
-  let dataObj = Object.entries(data);
+  listOfBreedss = await listOfBreedss.json();
 
-  addOptions(dataObj);
+  addOptions(listOfBreedss);
 
 })();
 
 async function addOptions(dataObj) {
-try{
+  try {
 
-  let breedIdList = [];
+    let breedIdList = [];
+    dataObj.forEach((item) => {
+      //console.log(item.name);
+      let optionsVal = `<option id = "${item.id}" value = "${item.id}">${item.name}</option>`;
+      breedSelect.innerHTML += optionsVal;
+      breedIdList.push(item.id);
+    })
 
-  for (let i = 0; i < dataObj.length; i++) {
-
-    let breedName = dataObj[i][1].name;
-    let breedId = dataObj[i][1].id;
-    let breedDesc = dataObj[i][1].description
-
-    /*   console.log("breed name - ", breedName);
-      console.log("breed id - ", breedId); */
-    let optionsVal = `<option id = "${breedId}" value = "${breedId}">${breedName}</option>`;
-    breedSelect.innerHTML += optionsVal;
-    breedIdList.push(breedId);
-
-
+  } catch (error) {
+    console.log(error.message);
   }
-  //breedIdList.forEach((item) => {
-  for(let j = 0; j < 3; j++){
-      //console.log(await fetch(`https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=${breedIdList[j]}&api_key=${API_KEY}`));
-    let breedList = await fetch(`https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=${breedIdList[j]}&api_key=${API_KEY}`);
-    let response = await breedList.json();
-    let arr = Object.entries(response);
-
-     console.log(`arr`,arr[j][1].url);
-
-  }
-
-}catch(error){
-  console.log(error.message);
-}
 }
 
-async function addPics(breedId) {
-try{
-  
-  let breedList = await fetch(`https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=${breedId}&api_key=${API_KEY}`);
-  let response = await breedList.json();
-  console.log(`add pics `, js);
-  let pics = Object.entries(js);
-  console.log(`res `, pics)
-}catch(error){
-  console.log(error.message);
-}
-
-}
 /**
  * 2. Create an event handler for breedSelect that does the following:
  * - Retrieve information on the selected breed from the cat API using fetch().
@@ -104,106 +65,24 @@ try{
  * - Add a call to this function to the end of your initialLoad function above to create the initial carousel.
  */
 
-// breedSelect.addEventListener("click", () => {
-
-// })
-
 getFavouritesBtn.addEventListener("click", async () => {
   Carousel.clear();
-  console.log(`se}`)
+
   let selectedBreedVal = breedSelect.value;
   console.log(`selectedBreedVal ${selectedBreedVal}`)
   //console.log(fetch(`https://api.thecatapi.com/v1/images/search?breed_ids=${selectedBreedVal}`));
-  let breedDisplayed = await fetch(`https://api.thecatapi.com/v1/images/search?breed_ids=${selectedBreedVal}`);
-  let breedRes = await breedDisplayed.json();
-  let breedObj = Object.entries(breedRes);
-  // console.log(fetch(`breedRes ${breedRes}`));
-  console.log(`breedJson ${breedObj}`)
-  let breedUrl = breedObj[0][1].url;
-  let breedId = breedObj[0][1].id;
-  console.log(`breedurl ${breedUrl}`);
-   console.log(`breedId ${breedId}`)
-  //Carousel.start();
- console.log( Carousel.createCarouselItem(breedUrl, "cat", breedId));
- let ele = Carousel.createCarouselItem(breedUrl, "cat", breedId);
-  console.log( Carousel.appendCarousel(ele));
+  let data = await fetch(`https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=${selectedBreedVal}&api_key=${API_KEY}`);
+  data = await data.json();
 
+  data.forEach((item) => {
+    console.log(`id`, item.id);
+    console.log(`url`, item.url);
+    let ele = Carousel.createCarouselItem(item.url, "cat", item.id);
+    Carousel.appendCarousel(ele);
+  })
 
-  //https://api.thecatapi.com/v1/images/0XYvRd7oD
-}); 
-
-
-/* getFavouritesBtn.addEventListener("click", async () => {
-  Carousel.clear();
-  console.log(`se`)
-  let selectedBreedVal = breedSelect.value;
-  console.log(`selectedBreedVal ${selectedBreedVal}`)
-
- const catApiUrl = `https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=${selectedBreedVal}&api_key=${API_KEY}`;
-  
-  const response = await fetch(catApiUrl, {
-      headers: {
-          'x-api-key': API_KEY
-      }
-  });
- if (!response.ok) {
-      throw new Error(`API call failed with status: ${response.status}`);
-  }
-
-  const cats = await response.json();
- cats.forEach(cat => {
-      const carouselItem = Carousel.createCarouselItem(cat,"catName", selectedBreedVal);
-      breedSelect.appendChild(carouselItem);
-  });
-
-
-  //https://api.thecatapi.com/v1/images/0XYvRd7oD
 });
- */
-/* 
-getFavouritesBtn.addEventListener("click", async () => {
 
-  Carousel.clear();
-  //Carousel.start();
-
-  let selectedBreedVal = breedSelect.value;
-  console.log(`selectedBreedVal ${selectedBreedVal}`)
-
-  let breedDisplayed = await fetch(`https://api.thecatapi.com/v1/images/search?breed_ids=${selectedBreedVal}`);
-  let response = await breedDisplayed.json();
-  let data = Object.entries(response);
-  //let { breedId, breedUrl } = breedDetails(data);
-  console.log(`data`, data)
-  //console.log(`breed Url`, breedUrl)
-let breedUrl = `https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=${selectedBreedVal}&api_key=${API_KEY}`;
-
-  let ele = Carousel.createCarouselItem(breedUrl, "cat", selectedBreedVal);
-  console.log(Carousel.appendCarousel(ele));
-/* 
-  let breedDisplayed1 = await fetch(`https://api.thecatapi.com/v1/images/${selectedBreedVal}`);
-  let breedRes1 = await breedDisplayed1.json();
-  let breedObj1 = Object.entries(breedRes1);
-  // console.log(fetch(`breedRes ${breedRes}`));
-  let { breedId1, breedUrl1 } = breedDetails(breedObj1);
-  //https://api.thecatapi.com/v1/images/0XYvRd7oD
-
-  let pTag = infoDump.appendChild(document.createElement("p"));
-  pTag.textContent = `hee`; 
-
-}); */
-
-
-async function breedDetails(breedObj) {
-  let breedUrl = await breedObj[0][1].url;
-  let breedId = await breedObj[0][1].id;
-  //console.log(Carousel.createCarouselItem(breedUrl, "cat", breedId));
-  console.log(`breedurl ${breedUrl}`);
-  console.log(`breedId ${breedId}`)
-  return { breedUrl, breedId };
-}
-function createBreeds() {
-
-}
 /**
  * 3. Fork your own sandbox, creating a new one named "JavaScript Axios Lab."
  */
